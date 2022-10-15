@@ -1,22 +1,24 @@
 #define constant IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {
-  0x20 0x6f returndatasize codecopy
+  0x20 0x6d returndatasize codecopy
   returndatasize mload [IMPL_SLOT] sstore
 }
 
 #define macro _MAIN(zero) = takes(0) returns(0) {
-  <zero>                                  // [0] 
-  calldatasize <zero> <zero> calldatacopy // [0]
+  <zero> <zero>                           // [0, 0] 
+  calldatasize <zero> <zero> calldatacopy // [0, 0]
   <zero> <zero> calldatasize <zero>
   [IMPL_SLOT] sload
   gas
-  delegatecall                            // [success, 0]
-  returndatasize dup3 dup1 returndatacopy // [success, 0]
-  is_success jumpi
-    returndatasize swap1 revert
+  delegatecall                            // [success, 0, 0]
+  returndatasize returndatasize           // [ret_size, ret_size, success, 0, 0]
+  swap4                                   // [0, ret_size, success, 0, ret_size]
+  dup1 returndatacopy                     // [success, 0, ret_size]
+  is_success jumpi                        // [0, ret_size]
+    revert
   is_success:
-    returndatasize swap1 return
+    return
 }
 
 #define macro MAIN() = takes(0) returns(0) {

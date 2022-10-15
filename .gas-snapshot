@@ -1,0 +1,3 @@
+ERC1967UUPSTest:testBubbleUpError() (gas: 78335)
+ERC1967UUPSTest:testForwardCalls(uint256) (runs: 256, μ: 100343, ~: 101665)
+ERC1967UUPSTest:testProxyCreation() (gas: 75393)
