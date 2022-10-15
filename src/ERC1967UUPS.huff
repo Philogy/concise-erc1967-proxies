@@ -8,9 +8,9 @@
 #define macro _MAIN(zero) = takes(0) returns(0) {
   <zero> <zero>                           // [0, 0] 
   calldatasize <zero> <zero> calldatacopy // [0, 0]
-  <zero> <zero> calldatasize <zero>
-  [IMPL_SLOT] sload
-  gas
+  <zero> <zero> calldatasize <zero>       // [...call_args, 0, 0]
+  [IMPL_SLOT] sload                       // [...call_args, 0, 0]
+  gas                                     // [...call_args, 0, 0]
   delegatecall                            // [success, 0, 0]
   returndatasize returndatasize           // [ret_size, ret_size, success, 0, 0]
   swap4                                   // [0, ret_size, success, 0, ret_size]
