@@ -12,12 +12,17 @@ interface IMorphingFactory {
         payable
         returns (address);
 
-    function upgrade(address _proxy, address _newImplementation)
+    function changeAdminOf(address _proxy, address _newAdmin) external;
+
+    function killForUpgrade(address _proxy) external;
+
+    function completeUpgrade(address _proxy, address _newImplementation)
         external
         payable;
 
-    function changeAdminOf(address _proxy, address _newAdmin) external;
-
-    error ProxyAlreadyExists();
     error NotProxyAdmin();
+    error FailedToSendETH();
+    error UpgradePending();
+    error NoUpgradePending();
+    error InvalidAddress();
 }

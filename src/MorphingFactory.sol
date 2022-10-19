@@ -6,7 +6,8 @@ import {MorphingProxyDeployer} from "./MorphingProxyDeployer.sol";
 
 /// @author Philippe Dumonet <philippe@dumo.net>
 contract MorphingFactory is IMorphingFactory {
-    address public getImplementation = address(uint160(1));
+    address internal constant NO_ADDRESS = address(uint160(1));
+    address public getImplementation = NO_ADDRESS;
 
     mapping(address => address) public adminOf;
     mapping(address => bytes32) internal proxySalt;
@@ -19,7 +20,14 @@ contract MorphingFactory is IMorphingFactory {
     modifier withImplementation(address _implementation) {
         getImplementation = _implementation;
         _;
-        getImplementation = address(uint160(1));
+        getImplementation = NO_ADDRESS;
+    }
+
+    modifier returnETHDiff() {
+        uint256 balBefore = address(this).balance;
+        _;
+        (bool success, ) = msg.sender.call{value: address(this).balance}("");
+        if (!success) revert FailedToSendETH();
     }
 
     function deployProxy(address _implementation, bytes32 _subSalt)
@@ -28,7 +36,6 @@ contract MorphingFactory is IMorphingFactory {
         withImplementation(_implementation)
         returns (address proxy)
     {
-        if (adminOf[_implementation] != address(0)) revert ProxyAlreadyExists();
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, _subSalt));
         proxy = address(new MorphingProxyDeployer{salt: salt}());
         proxySalt[proxy] = salt;
@@ -42,16 +49,20 @@ contract MorphingFactory is IMorphingFactory {
         adminOf[_proxy] = _newAdmin;
     }
 
-    function upgrade(address _proxy, address _newImplementation)
+    function killForUpgrade(address _proxy)
+        external
+        onlyAdminOf(_proxy)
+        returnETHDiff
+    {
+        _proxy.call("");
+    }
+
+    function completeUpgrade(address _proxy, address _newImplementation)
         external
         payable
         onlyAdminOf(_proxy)
         withImplementation(_newImplementation)
     {
-        _proxy.call(""); // cause self destruct
-        new MorphingProxyDeployer{
-            salt: proxySalt[_proxy],
-            value: address(this).balance
-        }(); // redeploy
+        new MorphingProxyDeployer{salt: proxySalt[_proxy], value: msg.value}(); // redeploy
     }
 }
