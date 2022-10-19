@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 import {Script} from "forge-std/Script.sol";
-import {Test} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import {deployJohnsProxy, deployProxy, compile, create, appendArg} from "./OtherDeployers.sol";
@@ -13,7 +12,7 @@ using {compile} for Vm;
 using {create, appendArg} for bytes;
 
 // taken from: https://github.com/libevm/hp2/blob/main/script/GasProfiler.s.sol
-contract GasProfiler is Script, Test {
+contract GasProfiler is Script {
     address johnsProxy;
     address libevmProxy;
     address philogyProxy;
@@ -57,7 +56,5 @@ contract GasProfiler is Script, Test {
         console.log("====");
         console.log("Philogy proxy gas used: ");
         console.log(philogyGasUsed);
-        bytes memory philogyCode = philogyProxy.code;
-        emit log_named_bytes("philogyCode", philogyCode);
     }
 }
