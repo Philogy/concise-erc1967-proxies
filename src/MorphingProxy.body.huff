@@ -1,0 +1,32 @@
+#define constant FACTORY = 0xcccc10000000000000000000000000000000cccc
+#define constant IMPLEMENTATION = 0xcccc20000000000000000000000000000000cccc
+
+#define macro FACTORY_UPGRADE() = takes(0) returns(0) {
+  caller selfdestruct
+}
+
+#define macro _MAIN(zero) = takes(0) returns(0) {
+  <zero> <zero>                           // [0, 0]
+  calldatasize <zero> <zero> calldatacopy // [0, 0]
+  <zero> <zero> calldatasize <zero>       // [...call_args, 0, 0]
+  [IMPLEMENTATION]                        // [...call_args, 0, 0]
+  gas                                     // [...call_args, 0, 0]
+  delegatecall                            // [success, 0, 0]
+  returndatasize returndatasize           // [ret_size, ret_size, success, 0, 0]
+  swap4                                   // [0, ret_size, success, 0, ret_size]
+  dup1 returndatacopy                     // [success, 0, ret_size]
+  is_success jumpi                        // [0, ret_size]
+    revert
+  is_success:
+    return
+}
+
+
+#define macro MAIN() = takes(0) returns(0) {
+  caller [FACTORY] eq factory_upgrade jumpi
+
+  _MAIN(returndatasize)
+
+  factory_upgrade:
+    FACTORY_UPGRADE()
+}
