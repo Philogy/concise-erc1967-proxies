@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {MockImplementation} from "./MockImplementation.sol";
+import {MockImplementation} from "./mocks/MockImplementation.sol";
 import {MorphingFactory} from "../src/MorphingFactory.sol";
 
 /// @author philogy <https://github.com/philogy>

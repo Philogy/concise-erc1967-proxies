@@ -6,7 +6,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import {deployJohnsProxy, deployProxy, compile, create, appendArg} from "./OtherDeployers.sol";
 import {MorphingFactory} from "../src/MorphingFactory.sol";
-import {MockImplementation} from "../test/MockImplementation.sol";
+import {MockImplementation} from "../test/mocks/MockImplementation.sol";
 
 using {compile} for Vm;
 using {create, appendArg} for bytes;
